@@ -29,10 +29,16 @@ import (
 	"github.com/streadway/amqp"
 )
 
+import "math/rand"
+import "math/big"
+import crand "crypto/rand"
+
+
 var (
 	app = kingpin.New("goad-lambda", "Utility deployed into aws lambda by goad")
 
 	address        = app.Arg("url", "URL to load test").Required().String()
+	address2        = app.Arg("content_server", "URL to content server").Required().String()
 	requestMethod  = app.Flag("method", "HTTP method").Short('m').Default("GET").String()
 	requestBody    = app.Flag("body", "HTTP request body").Short('b').String()
 	requestHeaders = app.Flag("header", "List of headers").Short('H').Strings()
@@ -51,9 +57,13 @@ var (
 	runnerID                      = app.Flag("runner-id", "A id to identifiy this lambda function").Required().Int()
 )
 
-const AWS_MAX_TIMEOUT = 295
+const AWS_MAX_TIMEOUT = 250
 
 func main() {
+	nBig, _ := crand.Int(crand.Reader, big.NewInt(27))
+	value := nBig.Int64()
+	rand.Seed(value)
+
 	lambdaSettings := parseLambdaSettings()
 	Lambda := newLambda(lambdaSettings)
 	Lambda.runLoadTest()
@@ -66,6 +76,7 @@ func parseLambdaSettings() LambdaSettings {
 
 	requestParameters := requestParameters{
 		URL:            *address,
+		ContentServer:  *address2,
 		RequestHeaders: *requestHeaders,
 		RequestMethod:  *requestMethod,
 		RequestBody:    *requestBody,
@@ -118,6 +129,7 @@ type goadLambda struct {
 
 type requestParameters struct {
 	URL            string
+	ContentServer  string
 	Requestcount   int
 	RequestMethod  string
 	RequestBody    string
@@ -428,8 +440,64 @@ func fetch(client *http.Client, p requestParameters, loadTestStartTime time.Time
 	return result
 }
 
+var letters = []byte ("abcdefghijklmnopqrstuvwyxz0123456789")
+var events = []string {"error", "impression", "creativeView", "start", "firstQuartile", "Midpoint", "thirdQuartile", "complete", "custom_1", "custom_2", "custom_3", "custom_4", "custom_5", "custom_6", "custom_7", "click"}
+var assetIds = []string {"p22yb33h7mqdpgk5fhm", "6veoeikmyj21a0w8fh7", "vy1na2pjfvw15bbawx3", "f4dv4hwv72uymum8fce", "2hdk0vudse6oga8ow36", "qne4eqygabb228yabba", "ntj6shdsjna4m3xbota", "vekgynmriba5wd27wyi", "2wndmb8zfjkfe2v0avk", "m5abucqz6cg55ysey33", "7svjw30b4wacc20dmof", "jdodlfmwbaypzs6vxry", "4dvr4n45313d6n8ojts", "tf2f4ihawwgstn55efp", "rt2hf16ykwt8rlvyykh", "olllvn0vs84h82byng2", "7bzqichddv8nq24yanr", "h3xwikfs35werhlm2k4", "haxeiuatyj1h304bpdj", "i6t8qbybw4qyb64ie1s"}
+
+var longQueryString string = "p22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mqdpgk5fhm6veoeikmyj21a0w8fh7vy1na2pjfvw15bbawx3f4dv4hwv72uymum8fce2hdk0vudse6oga8ow36qne4eqygabb228yabbap22yb33h7mq"
+
+var requestsIds = []string {"fvil-3pxoe","sotu-ivoa5","2pnz-fxmz3","g8ps-np67m","uh4w-wqqiw","l1lj-nuk7d","3edc-wcman","txs6-84h3j","j4s4-ixsje","fxa0-jys8u","cnc1-udgpz","bp0y-3z4c3","ibeq-2f3z8","z7b5-0o8ls","460f-p15lp","twco-psx0a","utwu-xrgzp","8wl8-6xhzx","0yan-typsc","p8wr-x1z2s","llzq-kiplt","kctk-xsk5l","gjuu-j5s8s","lfs5-l54pj","vvwc-p6n5r","6ihq-1eb4i","sum1-8sunn","mp05-if2ut","p2xu-zkyvt","70qn-hf1t6","jltj-fa5y7","mm7w-v4xll","uxc6-bw38e","p15a-ildpu","rduf-wj716","y8ir-d50yn","5w0e-a0kf4","apck-tvn4z","nsmu-sq5qz","dr67-nc7bl","m3su-074ev","c0j4-b411i","8h12-campj","0qj6-p1t44","jjdw-7t1zj","orgb-lyi0j","isck-50pwy","tb1s-pxcul","10kq-in1bn","agvi-v2upf","ofcx-a2kxn","ryip-7hndb","i63z-xb36a","0syc-748fg","ph6w-5hm1l","tsid-wszhb","cfot-2wdev","bvpq-7sbbw","klid-wjr6b","hrfp-wblxs","c22a-wqp8n","5d21-ab63k","08ux-czhgo","eq41-qjfdn","2otw-23tki","d0r0-p6vxt","fpth-viz53","zhm5-ub441","2tqs-c1rqb","s4cl-lzydu","woch-arnkx","wn6o-x20y4","vjrv-t5fxn","jzt4-l0m31","vu5y-f2gis","y7db-1o5hj","kwsm-adkwm","prwq-eg6hj","see4-edhih","r5p4-oazcv","dkho-ia0ju","xyxb-4stp8","f8mb-rrfer","zve1-quc5t","2x55-gtliq","b8cu-kidnc","0auf-u0gkl","hg06-7es03","k3l4-vyy7k","auk4-ypahl","hisv-f7ssf","x33s-copor","gugj-j3i53","yikx-l1quj","ba0h-dmzbp","cd38-tkpa8","jzrb-0waa2","5bnw-3xq4t","5e11-i32zn","mfng-p1zve","ljt1-33ebc","b0ei-iml4q","mvws-j2gba","bpcy-7gv1d","qfjr-6ycqm","e7nz-l80zj","zqzb-cnv8r","muo0-h3ab7","ipzf-g4eaq","pnl0-5aatp","zpnm-cxbf2","t21u-k7qs3","dizo-04h4f","3xua-3wg0q","fyt2-v6ybl","mwcz-ef503","rfde-n0efm","miex-vj8wr","mcsb-mmqn7","hyob-3iz0e","coui-acwtj","04k4-wnpxw","80vs-ec4xr","d7cz-wpq4u","eaza-nx8tk","jd2x-0riwk","xrjy-kahhk","byso-dgp3l","jwsk-n5ub4","38uw-6z1qg","p2l0-nm88w","nts0-u4ehf","goe7-cobbu","qacu-74tsf","4rak-h243i","qxui-1jhgc","sh01-l7q0z","xa7j-i2go4","41u6-cqo6u","7erk-86v4t","5zee-zqijm","e4yy-pn2kq","jbpv-iy4ea","7end-at5sy","kcds-en2pn","hltw-gs38w","mkdb-am6vr","e51k-lo6nr","m00j-dtzzi","a6og-3o04c","t6i5-fhmes","h7ry-yme45","mn5q-f76zm","d24f-xoy2n","hoi1-ij1y8","qpop-oyn8e","ilva-437gb","8hrz-5d7zy","0z3o-lxeik","l3vx-gfgsl","8bow-q5npy","eqi8-7t4el","r7hv-qu1b7","yq7q-veolv","hsrb-zny4w","5wqa-ubb5s","o8e5-u5rso","i2y3-xh3ma","a5i7-2mowx","1j11-qqkst","0o7j-06szp","1ifi-yf6kk","rn68-gol7l","35ci-4ggn8","jr8f-1x6i6","wp1g-5lxyx","cqw2-c2zej","jvot-whxb2","808f-w6cbg","bh0h-m8iug","8okz-dk3rn","mlky-dgt2k","ntky-0t4ic","o8p7-ynvg1","1jt5-dr5k4","b8w7-1qlpa","zq4g-sko6y","ti1d-k6kqp","mxta-2zctx","3bm8-3zkbw","iob3-fnxtt","g55c-6jx7k","tq5f-tl1sy","wvv8-s1djo","osfs-6gtfr","gyrh-6d4h1","j36j-gdqug","iyh0-vqrp7","smla-vequj","v15k-1si1s"}
+
+
+func randomRequestId() string {
+	return requestsIds[rand.Intn(200)] + "-" + requestsIds[rand.Intn(200)]
+}
+
+
+func randomEvent() string {
+	return events[rand.Intn(16)]
+}
+
+func randomAssetCreativeId() string {
+	return "/my_first_creative/" + assetIds[rand.Intn(20)]
+}
+
+
+func buildLink(url string) string {
+	var requestUrl bytes.Buffer
+
+	var event = randomEvent()
+	var path string = event + "/dcn" + randomAssetCreativeId() // 1
+	var queryStrings bytes.Buffer
+
+	queryStrings.WriteString("?")
+	queryStrings.WriteString("request_id=" + randomRequestId()) // 3
+	queryStrings.WriteString("&device_id=" + randomRequestId()) // 5
+	queryStrings.WriteString("&duration=25")
+	queryStrings.WriteString("&cb=" + strconv.Itoa(543128412389 + rand.Intn(1432894012))) // 6
+	queryStrings.WriteString("&long_query=" + longQueryString + strconv.Itoa(rand.Intn(10000000000000))) // 7
+
+	if event == "click" {
+		queryStrings.WriteString("&click_through=http%3A%2F%2Fgoogle.pl")
+	}
+
+	requestUrl.WriteString(url)
+	requestUrl.WriteString("/")
+	requestUrl.WriteString(path)
+	requestUrl.WriteString("/")
+	requestUrl.WriteString(queryStrings.String())
+
+	return requestUrl.String()
+}
+
+
+
 func prepareHttpRequest(params requestParameters) *http.Request {
-	req, err := http.NewRequest(params.RequestMethod, params.URL, bytes.NewBufferString(params.RequestBody))
+	var URL = buildLink(params.URL)
+	if rand.Intn(17) == 0 {
+		URL = params.ContentServer + "&long_query=" + longQueryString + strconv.Itoa(rand.Intn(10000000000000))
+	}
+	req, err := http.NewRequest(params.RequestMethod, URL, bytes.NewBufferString(params.RequestBody))
 	if err != nil {
 		fmt.Println("Error creating the HTTP request:", err)
 		panic("")
@@ -449,6 +517,7 @@ func prepareHttpRequest(params requestParameters) *http.Request {
 	}
 	return req
 }
+
 
 type requestMetric struct {
 	aggregatedResults         *api.RunnerResult
@@ -581,6 +650,7 @@ func (l *goadLambda) getInvokeArgsForFork() invokeArgs {
 		fmt.Sprintf("--body=%s", settings.RequestParameters.RequestBody),
 	}
 	args.Flags = append(args.Flags, fmt.Sprintf("%s", params.URL))
+	args.Flags = append(args.Flags, fmt.Sprintf("%s", params.ContentServer))
 	fmt.Println(args.Flags)
 	return args
 }

@@ -18,6 +18,7 @@ import (
 // TestConfig type
 type TestConfig struct {
 	URL         string
+	ContentServer string
 	Concurrency int
 	Requests    int
 	Timelimit   int
@@ -104,7 +105,10 @@ func (t *Test) invokeLambdas() {
 	for i := 0; i < t.lambdas; i++ {
 		region := t.Config.Regions[i%len(t.Config.Regions)]
 		requests, requestsRemainder := divide(t.Config.Requests, t.lambdas)
+		fmt.Println("t.lambdas"+strconv.Itoa(t.lambdas))
 		concurrency, _ := divide(t.Config.Concurrency, t.lambdas)
+		fmt.Println("t.Config.Concurrency"+strconv.Itoa(t.Config.Concurrency))
+		fmt.Println("concurrency"+strconv.Itoa(concurrency))
 		execTimeout := t.Config.Timelimit
 
 		if requestsRemainder > 0 && i == t.lambdas-1 {
@@ -130,6 +134,8 @@ func (t *Test) invokeLambdas() {
 			args = append(args, fmt.Sprintf("--header=%s", v))
 		}
 		args = append(args, fmt.Sprintf("%s", c.URL))
+		fmt.Println(c.ContentServer)
+		args = append(args, fmt.Sprintf("%s", c.ContentServer))
 
 		invokeargs := infrastructure.InvokeArgs{
 			File: "./goad-lambda",

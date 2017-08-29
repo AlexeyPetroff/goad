@@ -48,6 +48,7 @@ var (
 	app             = kingpin.New("goad", "An AWS Lambda powered load testing tool")
 	urlArg          = app.Arg(urlKey, "[http[s]://]hostname[:port]/path optional if defined in goad.ini")
 	url             = urlArg.String()
+	contentServer   = app.Arg("contentServer", "[http[s]://]hostname[:port]/path optional if defined in goad.ini").String()
 	requestsFlag    = app.Flag(requestsKey, "Number of requests to perform. Set to 0 in combination with a specified timelimit allows for unlimited requests for the specified time.").Short('n').Default("1000")
 	requests        = requestsFlag.Int()
 	concurrencyFlag = app.Flag(concurrencyKey, "Number of multiple requests to make at a time").Short('c').Default("10")
@@ -259,11 +260,16 @@ func parseCommandline() *goad.TestConfig {
 		app.Usage(args)
 		os.Exit(1)
 	}
-
+	if *contentServer == "" {
+		fmt.Println("No contentServer provided")
+		app.Usage(args)
+		os.Exit(1)
+	}
 	regionsArray := parseRegionsForBackwardsCompatibility(*regions)
 
 	config := &goad.TestConfig{}
 	config.URL = *url
+	config.ContentServer = *contentServer
 	config.Concurrency = *concurrency
 	config.Requests = *requests
 	config.Timelimit = *timelimit

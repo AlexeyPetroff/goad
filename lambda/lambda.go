@@ -247,7 +247,12 @@ func (l *goadLambda) setupHTTPClientForSelfsignedTLS() {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
-	l.HTTPClient = &http.Client{Transport: tr}
+	l.HTTPClient = &http.Client{
+		Transport: tr,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
 	l.HTTPClient.Timeout = l.Settings.ClientTimeout
 }
 
@@ -478,7 +483,7 @@ func buildLink(url string) string {
 	queryStrings.WriteString("&long_query=" + longQueryString + strconv.Itoa(rand.Intn(10000000000000))) // 7
 
 	if event == "click" {
-		queryStrings.WriteString("&click_through=http%3A%2F%2Fgoogle.pl")
+		queryStrings.WriteString("&click_through=https%3A%2F%2Fs3.amazonaws.com%2Fstresstestbucket%2Fok")
 	}
 
 	requestUrl.WriteString(url)
@@ -497,6 +502,8 @@ func prepareHttpRequest(params requestParameters) *http.Request {
 	if rand.Intn(17) == 0 {
 		URL = params.ContentServer + "&long_query=" + longQueryString + strconv.Itoa(rand.Intn(10000000000000))
 	}
+	fmt.Println("Pinging:", URL)
+
 	req, err := http.NewRequest(params.RequestMethod, URL, bytes.NewBufferString(params.RequestBody))
 	if err != nil {
 		fmt.Println("Error creating the HTTP request:", err)
